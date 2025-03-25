@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Convertor</title>
+    <style>
+        * {
+            padding: 0;
+            margin: 0;
+            box-sizing: border-box;
+            font-family: 'Roboto', sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #283048, #859398);
+            color: #fff;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+        }
+
+        h1 {
+            margin-bottom: 20px;
+            font-size: 2.5rem;
+        }
+
+        .SelectedImage {
+            width: 100%;
+            max-width: 600px;
+            height: auto;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+            transition: transform 0.3s;
+        }
+
+        .SelectedImage:hover {
+            transform: scale(1.02);
+        }
+
+        .ButtonGroup {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+
+        .ActionButton {
+            padding: 10px 25px;
+            border: none;
+            border-radius: 30px;
+            cursor: pointer;
+            font-size: 16px;
+            color: #fff;
+            transition: background 0.3s;
+        }
+
+        .select-btn { background-color: #28a745; }
+        .select-btn:hover { background-color: #218838; }
+
+        .download-btn { background-color: #17a2b8; }
+        .download-btn:hover { background-color: #117a8b; }
+
+        .clear-btn { background-color: #dc3545; }
+        .clear-btn:hover { background-color: #bd2130; }
+
+        .copy-btn { background-color: #007bff; }
+        .copy-btn:hover { background-color: #0056b3; }
+
+        .ImageData {
+            width: 100%;
+            max-width: 600px;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 15px;
+            border-radius: 12px;
+            overflow-y: auto;
+            max-height: 300px;
+            word-wrap: break-word;
+            margin-bottom: 20px;
+        }
+
+        @media (max-width: 768px) {
+            h1 { font-size: 2rem; }
+            .ButtonGroup { flex-direction: column; align-items: center; }
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Professional Image Picker & Encoder</h1>
+
+    <img class="SelectedImage" alt="Selected Image" />
+
+    <div class="ButtonGroup">
+        <button class="ActionButton select-btn">Select Image</button>
+        <button class="ActionButton download-btn" onclick="downloadBase64()">Download Base64</button>
+        <button class="ActionButton copy-btn" onclick="copyBase64()">Copy Base64</button>
+        <button class="ActionButton clear-btn" onclick="clearAll()">Clear</button>
+    </div>
+
+    <div class="ImageData">
+        <p class="Data"></p>
+    </div>
+
+    <script>
+        let currentBase64 = '';
+
+        const IMAGEPICKER = (imageElement, callback) => {
+            const input = document.createElement("input");
+            input.type = "file";
+            input.style.display = "none";
+            input.accept = "image/*";
+            document.body.appendChild(input);
+
+            input.addEventListener("change", function () {
+                const file = this.files[0];
+                if (!file) return;
+
+                const reader = new FileReader();
+
+                reader.onload = function (event) {
+                    const image = new Image();
+                    image.src = event.target.result;
+
+                    image.onload = function () {
+                        const maxWidth = 800;
+                        const maxHeight = 600;
+                        const canvas = document.createElement("canvas");
+                        const ctx = canvas.getContext("2d");
+
+                        let { width, height } = image;
+
+                        if (width > height && width > maxWidth) {
+                            height *= maxWidth / width;
+                            width = maxWidth;
+                        } else if (height > maxHeight) {
+                            width *= maxHeight / height;
+                            height = maxHeight;
+                        }
+
+                        canvas.width = width;
+                        canvas.height = height;
+                        ctx.clearRect(0, 0, width, height);
+                        ctx.drawImage(image, 0, 0, width, height);
+
+                        let base64Data = canvas.toDataURL("image/jpeg", 0.85);
+                        callback(base64Data);
+                        imageElement.src = base64Data;
+                        currentBase64 = base64Data;
+                    };
+                };
+
+                reader.readAsDataURL(file);
+            });
+
+            input.click();
+            input.remove();
+        };
+
+        const SelectedImage = document.querySelector(".SelectedImage");
+        const SelectedButton = document.querySelector(".select-btn");
+        const Data = document.querySelector(".Data");
+
+        SelectedButton.addEventListener("click", () => {
+            IMAGEPICKER(SelectedImage, (data) => {
+                Data.textContent = data;
+            });
+        });
+
+        function copyBase64() {
+            if (currentBase64) {
+                navigator.clipboard.writeText(currentBase64).then(() => alert("Base64 copied to clipboard!"));
+            } else {
+                alert("No image selected.");
+            }
+        }
+
+        function downloadBase64() {
+            if (currentBase64) {
+                const link = document.createElement('a');
+                const base64DataBlob = new Blob([currentBase64], { type: 'text/plain' });
+                link.href = URL.createObjectURL(base64DataBlob);
+                link.download = 'image_base64.txt';
+                link.click();
+            } else {
+                alert("No image to download.");
+            }
+        }
+
+        function clearAll() {
+            SelectedImage.src = '';
+            Data.textContent = '';
+            currentBase64 = '';
+        }
+    </script>
+</body>
+</html>
