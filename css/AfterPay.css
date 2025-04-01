@@ -1,0 +1,21 @@
+body{
+    background: #333;
+}
+
+header{
+    background: transparent;
+}
+
+.LeftText{
+    margin-left: 0.5rem;
+    color: blue;
+}
+
+.RightIcon{
+    margin-right: 0.5rem;
+}
+
+.MainDiv{
+    top: 50px;
+    background: transparent;
+}
