@@ -1,0 +1,29 @@
+.MainImage{
+    width: 90%;
+    height: 500px;
+    margin: 2% auto;
+}
+
+.headNav{
+    position: relative;
+    background: black;
+    width: 90%;
+    height: 50px;
+    margin: auto;
+    display: inline-flex;
+}
+
+.Introduction{
+    color: #000000;
+    margin: 1% 5% auto;
+    text-align: left;
+}
+
+.Imagesforganisation{
+    position: relative;
+    width: 90%;
+    height: 350px;
+    background: black;
+    margin: 2% auto 2% auto;
+    
+}
